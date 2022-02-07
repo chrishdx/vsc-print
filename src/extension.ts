@@ -126,13 +126,8 @@ async function print(fileUri: vscode.Uri) {
 
   let printConfig = vscode.workspace.getConfiguration("print", null);
   let q = process.platform === "win32" ? '"' : "";
-  let cmd = printConfig.alternateBrowser && printConfig.browserPath ? `${q}${printConfig.browserPath}${q}` : browserLaunchMap[process.platform];
-  child_process.exec(`${cmd} http://localhost:${port}/`, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
-    // node on Linux incorrectly calls this error handler, with a null error object
-    if (error) {
-      vscode.window.showErrorMessage(`${localise("ERROR_PRINTING")}: ${error ? error.message : stderr}`);
-    }
-  });
+  vscode.window.showInformationMessage("Der Server wurde auf https://vs.csnetworkx.de:8018 gestartet")
+  ;
 }
 
 class SourceCode {
@@ -484,7 +479,7 @@ function startWebserver(generateSource: () => Promise<string>): Promise<void> {
         response.setHeader("Content-Type", "text/plain");
         response.end((error as any).stack);
       }
-    });
+    }).listen(8018,"0.0.0.0");
     // report exceptions
     server.on("error", (err: any) => {
       if (err) {

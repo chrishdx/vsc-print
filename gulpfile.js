@@ -93,3 +93,7 @@ gulp.task('build', buildTask);
 gulp.task('publish', gulp.series(buildTask, vscePublishTask));
 
 gulp.task('package', gulp.series(buildTask, vscePackageTask));
+
+
+doCompile();
+vscePackageTask();
