@@ -136,7 +136,7 @@ async function print(fileUri: vscode.Uri) {
       vscode.window.showErrorMessage(`${localise("ERROR_PRINTING")}: ${error ? error.message : stderr}`);
     }
   });}else{
-    vscode.window.showInformationMessage(`Server starts at Port ${q}${printConfig.listenPort}${q}`);
+    vscode.env.openExternal(vscode.Uri.parse(`${q}${printConfig.adresse}${q}:${q}${printConfig.listenPort}${q}`));
   }
   
 }

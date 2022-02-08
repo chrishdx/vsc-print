@@ -120,6 +120,11 @@
             "description": "Listen Server to 0.0.0.0 or 127.0.0.1",
             "default": true
           },
+          "print.adresse": {
+            "type": "string",
+            "description": "The Url to Server like https://192.x.x.x or https://example.com",
+            "default": "https://"
+          },
           "print.listenPort": {
             "type": "number",
             "description": "Listen Port Number",
