@@ -126,8 +126,19 @@ async function print(fileUri: vscode.Uri) {
 
   let printConfig = vscode.workspace.getConfiguration("print", null);
   let q = process.platform === "win32" ? '"' : "";
-  vscode.window.showInformationMessage("Der Server wurde auf https://vs.csnetworkx.de:8018 gestartet")
-  ;
+  if (printConfig.listenLocal === true) {
+
+  
+  let cmd = printConfig.alternateBrowser && printConfig.browserPath ? `${q}${printConfig.browserPath}${q}` : browserLaunchMap[process.platform];
+  child_process.exec(`${cmd} http://localhost:${port}/`, (error: child_process.ExecException | null, stdout: string, stderr: string) => {
+    // node on Linux incorrectly calls this error handler, with a null error object
+    if (error) {
+      vscode.window.showErrorMessage(`${localise("ERROR_PRINTING")}: ${error ? error.message : stderr}`);
+    }
+  });}else{
+    vscode.window.showInformationMessage(`Server starts at Port ${q}${printConfig.listenPort}${q}`);
+  }
+  
 }
 
 class SourceCode {
@@ -448,7 +459,8 @@ function startWebserver(generateSource: () => Promise<string>): Promise<void> {
   return new Promise(async (resolve, reject) => {
     // prepare to service an http request
     server = http.createServer(async (request, response) => {
-      if (!connectingToLocalhost(request)) {
+      let printConfig = vscode.workspace.getConfiguration("print", null);
+      if (!connectingToLocalhost(request) && printConfig.listenLocal === true) {
         return request.socket.end();
       }
       try {
@@ -479,7 +491,7 @@ function startWebserver(generateSource: () => Promise<string>): Promise<void> {
         response.setHeader("Content-Type", "text/plain");
         response.end((error as any).stack);
       }
-    }).listen(8018,"0.0.0.0");
+    });
     // report exceptions
     server.on("error", (err: any) => {
       if (err) {
@@ -497,7 +509,10 @@ function startWebserver(generateSource: () => Promise<string>): Promise<void> {
       resolve();
     });
     let printConfig = vscode.workspace.getConfiguration("print", null);
-    server.listen();
+    let listenip = printConfig.listenLocal && '127.0.0.1' || '0.0.0.0';
+
+    server.listen(printConfig.listenPort , listenip);
+
     const webserverUptimeSecs = printConfig.get<number>("webserverUptimeSeconds", 0);
     if (webserverUptimeSecs) {
       serverTimeout = setTimeout(() => {

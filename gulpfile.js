@@ -95,5 +95,5 @@ gulp.task('publish', gulp.series(buildTask, vscePublishTask));
 gulp.task('package', gulp.series(buildTask, vscePackageTask));
 
 
-doCompile();
-vscePackageTask();
+//doCompile(true);
+vsce.createVSIX({packagePath: process.env.VSIX_PACKAGE_PATH});
